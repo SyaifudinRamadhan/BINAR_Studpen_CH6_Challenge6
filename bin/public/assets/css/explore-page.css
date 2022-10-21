@@ -1,0 +1,126 @@
+@keyframes progress-content {
+    0% {opacity: 1;}
+    50% {opacity: 0.5;}
+    100% {opacity: 1;}
+}
+
+.search-box {
+margin-top: -2%;
+/* z-index: 1030; */
+}
+.bg {
+background-color: #0000009e;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+width: 100%;
+height: 100%;
+display: none;
+}
+
+.input-group input {
+border-right: 0px;
+}
+
+.input-group .input-group-text {
+background-color: white;
+}
+
+.btn__mod {
+--bs-btn-bg: #5cb85f;
+--bs-btn-border-color: #5cb85f;
+color: #fff;
+}
+
+.label-responsive {
+display: none;
+}
+
+.label-full {
+display: unset;
+}
+
+.footer {
+margin-top: 154px;
+}
+
+.ts-control {
+min-height: calc(1.5em + 1rem + 2px);
+padding: 0.5rem 1rem !important;
+font-size: 1.25rem !important;
+border-radius: 0.5rem !important;
+}
+
+.ts-control input {
+font-size: 14px;
+}
+
+.ts-dropdown .active {
+background-color: #ddfcd7;
+color: #495c68;
+}
+
+.ts-control .item {
+align-self: center;
+}
+
+.ts-control > input{
+min-width: unset;
+}
+
+#search-box input {
+font-size: 14px !important;
+}
+
+.bg-skeleton{
+background-color: #d7d6d6f5;
+animation: progress-content 1000ms infinite;
+}
+.img-skeleton{
+aspect-ratio: 4/3;
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+}
+.title-skeleton{
+height: 15px;
+}
+.p1-skeleton{
+height: 13px; width: 80%;
+}
+.p2-skeleton{
+height: 13px; width: 70%
+}
+.p3-skeleton{
+height: 13px; width: 50%
+}
+.btn-skeleton{
+height: 20px;
+}
+
+
+/* Responsive car img in this page */
+@media (max-width: 767.9px) {
+.content img {
+  top: 360px;
+}
+
+.label-responsive {
+  display: unset;
+}
+
+.label-full {
+  display: none;
+}
+
+.footer {
+  margin-top: 404px;
+}
+}
+@media (max-width: 423px) {
+.content img {
+  top: 440px;
+}
+}

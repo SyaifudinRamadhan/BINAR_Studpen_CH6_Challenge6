@@ -1,0 +1,95 @@
+*{
+    /* margin: 0;
+    padding: 0; */
+    font-family:'IBM Plex Sans';
+}
+/* .edit_car{
+    background-color: #E5E5E5;
+    height: 800px;
+} */
+nav{
+    background-color: #FFFFFF !important;
+}
+section{
+    background-color: #E5E5E5 !important;
+    padding-bottom: 20px;
+}
+.offcanvas{
+    width: 280px !important;
+}
+.offcanvas-body{
+    background-color: #0D28A6;
+}
+.offcanvas-body .home_img{
+    text-decoration: none;
+    color: #FFFFFF;
+}
+.offcanvas-body .dropdown .dropdown-toggle{
+    color: #FFFFFF;
+}
+.edit_car{
+    /* padding-top: 20px;
+    margin-left: 250px !important; */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+    margin-bottom: 50px;
+}
+.edit_car ul{
+    list-style: none;
+    /* width: 344px; */
+    padding: unset;
+}
+.edit_car ul li{
+    display: inline;
+}
+.edit_car ul li a{
+    text-decoration: none;
+    color:#000000;
+    font-style: normal;
+    font-weight: 700 !important;
+}
+.last_menu a{
+    color: #8A8A8A !important;
+}
+.edit_car h2{
+    font-size: 20px;
+    font-weight: 700 !important;
+    line-height: 30px;
+    width: 224px;
+    /* margin-left: 40px; */
+}
+.edit_car .form_control{
+    /* margin-left: 50px; */
+}
+.form_update_car{
+    background-color:#FFFFFF;
+    border-radius: 2px;
+    /* width: 1000px; */
+}
+/* .container{
+    padding: 20px 0 6px 0;
+} */
+.form_update_car label{
+    font-style: normal;
+    font-weight: 300;
+    line-height: 18px;
+}
+.form_update_car p{
+    color: #8A8A8A;
+    font-weight: 300;
+}
+.form_update_car .input-group sup{
+    color: #FA2C5A !important;
+}
+.btn_cancel{
+    margin-top: 60px;
+    border-color: #0D28A6 !important;
+    background-color: #FFFFFF !important;
+    color: #0D28A6 !important;
+}
+.btn_save{
+    margin: 60px 0 0 17px;
+    background-color: #0D28A6 !important;
+    color: #FFFFFF !important;
+}

@@ -1,0 +1,1205 @@
+openapi: 3.0.0
+info:
+  title: Car CRUD and authorizations
+  version: 0.1.0
+servers:
+- description: Mock Server
+  url: http://localhost:3000
+tags:
+- name: Car
+  description: Contain every CRUD, authentication, and authorization operation about Car Resource
+paths:
+  /api/v1/login:
+    post:
+      operationId: signinSystem
+      tags:
+      - Authentication
+      requestBody:
+        $ref: "#/components/requestBodies/signinRequest"
+      responses:
+        "200":
+          description: Ini adalah hasil respon setelah login / sign in berhasil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signin"
+        "404":
+          description: Ini adalah respon yang diberikan jika login gagal dilakukan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/noMatchResponse"
+        "400":
+          description: Ini hasil respon jika proses register gagal disimpan ke server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+
+  /api/v1/register:
+    post:
+      operationId: signupSystem
+      tags:
+      - Authentication
+      requestBody:
+        $ref: "#/components/requestBodies/signupRequest"
+      responses:
+        "201":
+          description: Ini hasil respon jika register berhasil disimpan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userDataBasic"
+        "400":
+          description: Ini hasil respon jika proses register gagal disimpan ke server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+
+  /api/v1/update-profile:
+    put:
+      operationId: updateProfile
+      description: Enpoint dengan tags user authorization adalah endpoint yang dapat diakses oleh semua access level mulai dari member sampai super admin
+      tags:
+      - All User Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      requestBody:
+        $ref: "#/components/requestBodies/updateUserRequest"
+      responses:
+        "200":
+          description: "Ini hasil respon edit profil jika request update berhasil"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/update"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hakk akses oleh user yng belum login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        "400":
+          description: Ini hasil respon jika proses update profil gagal disimpan ke server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+
+  /api/v1/who-am-i:
+    get:
+      operationId: getProfileData
+      description: Enpoint dengan tags user authorization adalah endpoint yang dapat diakses oleh semua access level mulai dari member sampai super admin
+      tags:
+      - All User Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      responses:
+        "200":
+          description: Berikut bentuk dari respon success endpoint ini. Key cars dalam response ini akan berisi data car jika user pengakses ber-level admin / super admin. Jika ber-level member, maka key car akan menjadi array kosong.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userData"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yng belum login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        "400":
+          description: Ini hasil respon jika proses update profil gagal disimpan ke server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+
+  /api/v1/cars/{driverType}/{date}/{time}/{countPeople}:
+    get:
+      operationId: carFilterPublic
+      description: Endpoint ini bertujuan untuk mendapatkan / memfilter data car yang ddiakses oleh akses level apapun termasuk juga user yang belum login
+      tags:
+      - Public Authorization
+      parameters:
+      - name: driverType
+        in: path
+        description: Parameter driver type value bertipe data string yang didapat dari tipe boolean (0 / 1) yang dikonversikan ke string.
+        required: true
+        schema:
+          type: string
+          default: -0- (string)
+          example: 1
+      - name: date
+        in: path
+        description: Parameter date merupakan filter terhadap tanggal ketersediaan mobil untuk disewah. Format yang dipakai adalah bentuk konversi tipe data Date menjadi string.
+        required: true
+        schema:
+          type: string
+          default: -0- (string)
+          example: "2010-9-8"
+      - name: time
+        in: path
+        description: Parameter time adalah filter terhadap waktu ketersediann mobil dapat disewah. Dengan tipe data string dengan format HH:mm
+        required: true
+        schema:
+          type: string
+          default: -0- (string)
+          example: "20:00"
+      - name: countPeople
+        in: path
+        description: parameter countPeople adalah parameter untuk filter terhadap jumlah penumpang yang mampu ditampung mobil. Dengan tipe data number.
+        required: true
+        schema:
+          type: number
+          default: -0- (string)
+          example: 6
+      responses:
+        "200":
+          description: "Berikut adalah hasil response dari filter data car dalam bentuk array object"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/carDataFullRelation"
+        "400":
+          description: Ini hasil respon jika proses filter gagal disimpan ke server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+
+  /api/v1/get-users:
+    get:
+      operationId: getUsers
+      description: Enpoint get user bekerja dengan memberikan semua data user baik admin maupun member dari api ini. Endpoint getUsers hanya bisa diakses oleh pemilik akses level super admin (level 2)
+      tags:
+      - Super Admin Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      responses:
+        "200":
+          description: Berikut adalah bentuk response success dari endpoint getUsers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/userData"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint getUsers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yang tidak mempunyai akses level 2 / super admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+
+  /api/v1/get-user/{id}:
+    get:
+      operationId: getUser
+      description: Enpoint get user bekerja dengan memberikan semua data user baik admin maupun member dari api ini. Endpoint getUser hanya bisa diakses oleh pemilik akses level super admin (level 2)
+      tags:
+      - Super Admin Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Parameter id ini, merupakan id berformat uuid dari user yang ditargetkan.
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+      responses:
+        "200":
+          description: Berikut adalah bentuk response success dari endpoint getUser
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userData"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint getUser
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yang tidak mempunyai akses level 2 / super admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+
+  /api/v1/get-admins:
+    get:
+      operationId: getAdmins
+      description: Enpoint get user bekerja dengan memberikan semua data user admin (user dengan access_level 1) dari api ini. Endpoint getAdmins hanya bisa diakses oleh pemilik akses level super admin (level 2)
+      tags:
+      - Super Admin Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      responses:
+        "200":
+          description: Berikut adalah bentuk response success dari endpoint getAdmins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/userData"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint getAdmins
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yang tidak mempunyai akses level 2 / super admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+
+  /api/v1/add-admin:
+    post:
+      operationId: addAdmin
+      description: Endpoint addAdmin memiliki fungsi untuk menambahkan user dengan role / access leve sebagai admin / level 1. Endpoint ini hanya dapat diakses oleh user ber level 2 / super admin.
+      tags:
+      - Super Admin Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      requestBody:
+        $ref: "#/components/requestBodies/signupRequest"
+      responses:
+        "201":
+          description: "Hasil respon berikut adalah contoh request addAdmin yang berhasil ditambahkan"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userDataBasic"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint addAdmin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yang tidak mempunyai akses level 2 / super admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+
+  /api/v1/update-profile/{id}:
+    put:
+      operationId: superUpdateProfile
+      description: Endpoint superUpdateProfile memiliki fungsi untuk mengupdate profile semua user di API ini termasuk profile user admin. Endpoint ini hanya dapat diakses oleh user ber level 2 / super admin.
+      tags:
+      - Super Admin Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Parameter id ini, merupakan id berformat uuid dari user yang ditargetkan.
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+
+      requestBody:
+        $ref: "#/components/requestBodies/updateUserRequest"
+      responses:
+        "200":
+          description: "Hasil respon berikut adalah contoh request superUpdateProfile yang berhasil diupdate"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/update"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yang tidak mempunyai akses level 2 / super admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        '404':
+          $ref: "#/components/responses/Error404"
+
+  /api/v1/remove-account/{id}:
+    delete:
+      operationId: removeAccount
+      description: Endpoint removeAccount memiliki fungsi untuk menghapus user di API ini termasuk beserta data car yang dimilikinya jika user terget adalah admin. Endpoint ini hanya dapat diakses oleh user ber level 2 / super admin.
+      tags:
+      - Super Admin Authorization
+      parameters:
+      - name: x-access-token
+        in: header
+        required: true
+        schema:
+          type: string
+          format: jwt
+          description: Parameter token dengan nama x-access-token adalah parameter wajib untuk mengakses endpoint enpoint pada API ini. x-access-token, bisa didaptakan dari response endpoint login dengan key token
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjY1M2YzNjktNGRmNC00M2Y5LWE2NzMtOWVjNjEwMzU5NDI1IiwiaWF0IjoxNjY2MDcwNjA3fQ.a2uU6WZ_wW6zfZOTSYzSLusiuTTczLYCvW7GBfioMvo
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Parameter id ini, merupakan id berformat uuid dari user yang ditargetkan.
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+      responses:
+        "200":
+          description: "Hasil respon berikut adalah contoh request removeAccount yang berhasil dihapus / delete"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/delete"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint removeAccount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        "401":
+          description: Hasil respon berikut adalah contoh pelanggaran hak akses oleh user yang tidak mempunyai akses level 2 / super admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unauthorized"
+        '404':
+          $ref: "#/components/responses/Error404"
+
+  /api/v1/cars:
+    get:
+      operationId: adminGetCars
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      summary: Menampilkan daftar mobil milik Admin/Super Admin
+      responses:
+        '200':
+          $ref: "#/components/responses/List"
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        '404':
+          $ref: "#/components/responses/Error404"
+  /api/v1/car/{id}:
+    get:
+      operationId: adminGetCar
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: path
+        name: id
+        description: Id Mobil yang ingin diakses
+        required: true
+        schema:
+          type: string
+          example: "b6513179-1083-4f55-9693-8a6df9dcec39"
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      summary: "Menampilkan detail mobil berdasarkan id mobil"
+      responses:
+        '200':
+          description: Ini untuk menampilkan data Mobil milik Admin / Super Admin berdasarkan id mobil yang dipilih
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  cars:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/carDataFullRelation"
+
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        '404':
+          $ref: "#/components/responses/Error404"
+
+  /api/v1/car/name/{name}:
+    get:
+      operationId: adminFilterCar
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: path
+        name: name
+        description: name Mobil yang ingin diakses
+        required: true
+        schema:
+          type: string
+          example: "Lamborghini"
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      summary: "Menampilkan detail mobil berdasarkan id mobil"
+      responses:
+        '200':
+          description: Ini untuk menampilkan data Mobil milik Admin / Super Admin berdasar hasil pencarian nama mobil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  cars:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/carDataFullRelation"
+
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        '404':
+          $ref: "#/components/responses/Error404"
+
+  /api/v1/car/size/{size}:
+    get:
+      operationId: adminFilterCar2
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: path
+        name: size
+        description: size Mobil yang ingin diakses
+        required: true
+        schema:
+          type: string
+          example: "small"
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      summary: "Menampilkan detail mobil berdasarkan id mobil"
+      responses:
+        '200':
+          description: Ini untuk menampilkan data Mobil milik Admin / Super Admin berdasarkan hasil filter ukuran
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  cars:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/carDataFullRelation"
+
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        '404':
+          $ref: "#/components/responses/Error404"
+
+  /api/v1/car/add:
+    post:
+      operationId: adminAddCar
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      requestBody:
+        $ref: "#/components/requestBodies/addUpdateCarRequest"
+      summary: "Menampilkan detail mobil yang baru saja ditambahkan"
+      responses:
+        '201':
+          description: Ini untuk hasil tambah / post data car berdasarkan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  data:
+                    $ref: "#/components/schemas/carDataBasic"
+
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+
+
+  /api/v1/car/{id}/update:
+    put:
+      operationId: adminUpdateCar
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: path
+        name: id
+        description: Id Mobil yang ingin diakses
+        required: true
+        schema:
+          type: string
+          example: "b6513179-1083-4f55-9693-8a6df9dcec39"
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      requestBody:
+        $ref: "#/components/requestBodies/addUpdateCarRequest"
+      summary: "Mengupdate detail mobil berdasarkan id mobil"
+      responses:
+        '200':
+          description: Ini untuk hasil update data car berdasarkan Id nya.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/update"
+
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        '404':
+          description: Ini untuk hasil update data car yang gagal berdasarkan Id nya.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/noMatchResponse"
+
+  /api/v1/car/{id}/delete:
+    delete:
+      operationId: adminDeleteCar
+      tags:
+      - Super Admin & Admin Authorization
+      parameters:
+      - in: path
+        name: id
+        description: Id Mobil yang ingin diakses
+        required: true
+        schema:
+          type: string
+          example: "b6513179-1083-4f55-9693-8a6df9dcec39"
+      - in: header
+        name: x-access-token
+        schema:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNWNhYzk1MWQtNmE0YS00ZGYyLTgwMzYtNWY3Nzk0MTNmMzg1IiwiaWF0IjoxNjY2MjAxNzEyfQ.n0dbOB6C8EVRsq4PUiQPoUwXbqOP8G4DWisFSz18myg"
+        required: true
+      summary: "Menghapus data mobil berdasarkan id mobil"
+      responses:
+        '200':
+          description: Ini untuk hasil penghapusan data car berdasarkan Id nya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  message:
+                    type: string
+                    example: Data with id b6513179-1083-4f55-9693-8a6df9dcec39 deleted success
+
+        '401':
+          $ref: "#/components/responses/ErrorList"
+        "400":
+          description: Berikut bentuk response kesalahan server / gagal memanggil endpoint superUpdateProfile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/badRequest"
+        '404':
+          description: Ini untuk hasil penghapusan data car yang gagal berdasarkan Id nya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  message:
+                    type: string
+                    example: Data with id b6513179-1083-4f55-9693-8a6df9dcec39 not found
+
+components:
+  schemas:
+    carType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: MPV
+        createdAt:
+          type: string
+          example: '2022-10-15T04:19:51.834Z'
+        updatedAt:
+          type: string
+          example: '2022-10-15T04:19:51.834Z'
+
+    carData:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 8a90d142-6b29-498c-938f-f862203093b7
+        name:
+          type: string
+          example: Carrera 2765
+        type_car:
+          type: integer
+          example: 2
+        price:
+          type: integer
+          example: 100000
+        available:
+          type: boolean
+          example: true
+        available_at:
+          type: string
+          example: '2022-03-23T15:49:05.563Z'
+        deleted:
+          type: boolean
+          example: false
+        image:
+          type: string
+          example: /images/ee831b29-47e3-495f-82b9-e45797044d89_image_1666015992628_768365436.jpg
+        user_id:
+          type: string
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+        capacity:
+          type: integer
+          example: 6
+        description:
+          type: string
+          example: lorem ipsum dolor sit amet
+        transmission:
+          type: string
+          example: manual
+        year:
+          type: integer
+          example: 2012
+        size:
+          type: string
+          example: medium
+        createdAt:
+          type: string
+          example: '2022-10-17T14:13:12.647Z'
+        updatedAt:
+          type: string
+          example: '2022-10-17T14:13:12.647Z'
+        type:
+          $ref: "#/components/schemas/carType"
+
+    carDataFullRelation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 8a90d142-6b29-498c-938f-f862203093b7
+        name:
+          type: string
+          example: Carrera 2765
+        type_car:
+          type: integer
+          example: 2
+        price:
+          type: integer
+          example: 100000
+        available:
+          type: boolean
+          example: true
+        available_at:
+          type: string
+          example: '2022-03-23T15:49:05.563Z'
+        deleted:
+          type: boolean
+          example: false
+        image:
+          type: string
+          example: /images/ee831b29-47e3-495f-82b9-e45797044d89_image_1666015992628_768365436.jpg
+        user_id:
+          type: string
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+        capacity:
+          type: integer
+          example: 6
+        description:
+          type: string
+          example: lorem ipsum dolor sit amet
+        transmission:
+          type: string
+          example: manual
+        year:
+          type: integer
+          example: 2012
+        size:
+          type: string
+          example: medium
+        createdAt:
+          type: string
+          example: '2022-10-17T14:13:12.647Z'
+        updatedAt:
+          type: string
+          example: '2022-10-17T14:13:12.647Z'
+        user:
+          $ref: "#/components/schemas/userDataBasic"
+        type:
+          $ref: "#/components/schemas/carType"
+
+    carDataBasic:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 8a90d142-6b29-498c-938f-f862203093b7
+        name:
+          type: string
+          example: Carrera 2765
+        type_car:
+          type: integer
+          example: 2
+        price:
+          type: integer
+          example: 100000
+        available:
+          type: boolean
+          example: true
+        available_at:
+          type: string
+          example: '2022-03-23T15:49:05.563Z'
+        deleted:
+          type: boolean
+          example: false
+        image:
+          type: string
+          example: /images/ee831b29-47e3-495f-82b9-e45797044d89_image_1666015992628_768365436.jpg
+        user_id:
+          type: string
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+        capacity:
+          type: integer
+          example: 6
+        description:
+          type: string
+          example: lorem ipsum dolor sit amet
+        transmission:
+          type: string
+          example: manual
+        year:
+          type: integer
+          example: 2012
+        size:
+          type: string
+          example: medium
+        createdAt:
+          type: string
+          example: '2022-10-17T14:13:12.647Z'
+        updatedAt:
+          type: string
+          example: '2022-10-17T14:13:12.647Z'
+
+
+    userData:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+        username:
+          type: string
+          example: admin
+        first_name:
+          type: string
+          example: admin
+        last_name:
+          type: string
+          example: admin
+        email:
+          type: string
+          example: admin@mail.com
+        password:
+          type: string
+          example: $2a$10$X7V.FfeIM09h57xISUivxuyaQ3UmjXQcUL.Y6QcgL3icAar5PF4jm
+        access_level:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          example: 2022-10-15T04:19:51.853Z
+        updatedAt:
+          type: string
+          example: 2022-10-18T10:23:07.277Z
+        cars:
+          type: array
+          items:
+            $ref: "#/components/schemas/carData"
+
+    userDataBasic:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ee831b29-47e3-495f-82b9-e45797044d89
+        username:
+          type: string
+          example: admin
+        first_name:
+          type: string
+          example: admin
+        last_name:
+          type: string
+          example: admin
+        email:
+          type: string
+          example: admin@mail.com
+        password:
+          type: string
+          example: $2a$10$X7V.FfeIM09h57xISUivxuyaQ3UmjXQcUL.Y6QcgL3icAar5PF4jm
+        access_level:
+          type: integer
+          example: 0
+        createdAt:
+          type: string
+          example: 2022-10-15T04:19:51.853Z
+        updatedAt:
+          type: string
+          example: 2022-10-18T10:23:07.277Z
+
+    noMatchResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "User not found / password not match / Data not found"
+          enum:
+          - User not found
+          - Password not match
+          - car not found
+
+    badRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          example: FAIL
+        message:
+          type: string
+          example: (server error ...)
+
+    signin:
+      type: object
+      properties:
+        users:
+          $ref: "#/components/schemas/userData"
+        token:
+          type: string
+          example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZWU4MzFiMjktNDdlMy00OTVmLTgyYjktZTQ1Nzk3MDQ0ZDg5IiwiaWF0IjoxNjY2MTkwNTYwfQ.3ENp4q7Js-oJsyVSuLMUGEXlZZf4T-CRMOxjiDaBDYo"
+
+    update:
+      type: object
+      properties:
+        success:
+          type: string
+          example: "Update user / car successfully"
+        update:
+          type: array
+          items:
+            type: integer
+            description: Nilai integer ini adalah jumlah data yang berhasil di update (rows tabel yang terupdate)
+            example: 1
+
+    delete:
+      type: object
+      properties:
+        success:
+          type: string
+          example: "Delete user / car successfully"
+        delete:
+          type: array
+          items:
+            type: integer
+            description: Nilai integer ini adalah jumlah data yang berhasil di update (rows tabel yang terupdate)
+            example: 1
+
+    unauthorized:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Authentication rejected. You not an ...
+
+  requestBodies:
+    signinRequest:
+      description: Ini adalah request body data untuk login user / admin / super admin. Gunakan username dan password untuk login di request body ini.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - username
+            - password
+            properties:
+              username:
+                type: string
+                example: user
+              password:
+                type: string
+                example: p4ssw0rd
+
+    signupRequest:
+      description: Ini adalah request body data untuk register user / admin. Daftarkan username dan password untuk login di request body ini.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - username
+            - password
+            - first_name
+            - last_name
+            - email
+            properties:
+              username:
+                type: string
+                example: user
+              password:
+                type: string
+                example: p4ssw0rd
+              first_name:
+                type: string
+                example: user
+              last_name:
+                type: string
+                example: user
+              email:
+                type: string
+                example: user@mail.com
+
+    updateUserRequest:
+      description: Ini adalah request body data untuk update user / admin / super admin. Ubah data profile di request body ini. Semua field update profil, tidak wajib diisi (diizinkan untuk mengupdate hanya satu field data di request body ini).
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                example: user
+              first_name:
+                type: string
+                example: user
+              last_name:
+                type: string
+                example: user
+              email:
+                type: string
+                example: user@mail.com
+
+    addUpdateCarRequest:
+      description: Ini adalah request body untuk menambah / mengupdate data car. Semua field di request body ini wajib diisi. Reuqest body ini bertipe form-data
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Carrera 2765
+              type_car:
+                type: integer
+                example: 2
+              price:
+                type: integer
+                example: 100000
+              available:
+                type: boolean
+                example: true
+              available_at:
+                type: string
+                example: '2022-03-23T15:49:05.563Z'
+              image:
+                type: string
+                format: binary
+              capacity:
+                type: integer
+                example: 6
+              description:
+                type: string
+                example: lorem ipsum dolor sit amet
+              transmission:
+                type: string
+                example: manual
+              year:
+                type: integer
+                example: 2012
+              size:
+                type: string
+                example: medium
+
+  responses:
+    List:
+      description: Ini untuk menampilkan data Mobil milik Admin / Super Admin
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: OK
+              cars:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: "#/components/schemas/carDataFullRelation"
+                  - $ref: "#/components/schemas/carDataFullRelation"
+              count:
+                type: integer
+                example: 2
+    ErrorList:
+      description: Ini Error Jika mencoba mengakses ini dengan user
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Authentication rejected. You not an admin"
+    Error404:
+      description: Ini Error Jika admin belum memiliki data di dalamnya
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: OK
+              error:
+                type: string
+                example: "Data not found"
+
+
+
