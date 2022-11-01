@@ -3,12 +3,16 @@ const controllers = require("../app/controllers");
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+const cors = require('cors');
 
 const swaggerDocument = YAML.load(path.join(__dirname, '../openapi.yaml'));
 
 const apiRouter = express.Router();
 
+apiRouter.use(cors());
+
 apiRouter.post("/api/v1/login", controllers.api.midd.middAuth.verifyLogin, controllers.api.v1.auth.login);
+apiRouter.post("/api/v1/loginGoogle", controllers.api.midd.middAuth.verifyLogin, controllers.api.v1.auth.loginWithGoogle)
 apiRouter.post("/api/v1/register", controllers.api.midd.middAuth.verifyRegister, controllers.api.v1.auth.register);
 
 // Routes untuk user & public

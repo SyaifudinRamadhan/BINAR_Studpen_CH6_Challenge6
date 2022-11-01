@@ -21,6 +21,17 @@ module.exports = {
         })
     },
 
+    loginWithGoogle(req, res){
+        authServices.loginWithGoogle(req).then(result => {
+            if(result.error){
+                res.status(404).json({error: result.error});
+                return;
+            }
+            res.status(200).json({users: result.user, token: result.token});
+            return;
+        })
+    },
+
      listUser (req, res) {
         authServices.listUserService().then(result => {
             if(result.error){

@@ -32,7 +32,17 @@ module.exports = {
         });
     },
 
-    crreateUser(username, first_name, last_name, email, password, access_level){
+    getByEmail(email, googleId){
+        return models.User.findAll({
+            where: {
+                email: email,
+                googleId: googleId
+            },
+            include: [{ all: true, nested: true }]
+        });
+    },
+
+    crreateUser(username, first_name, last_name, email, password, access_level, googleId){
         return models.User.create({
             username : username, 
             first_name : first_name, 
@@ -40,6 +50,7 @@ module.exports = {
             email :email, 
             password :password, 
             access_level: access_level ? access_level : 0,
+            googleId: googleId == undefined ? null : googleId 
         })
     },
 
