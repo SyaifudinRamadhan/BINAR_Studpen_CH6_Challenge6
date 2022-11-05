@@ -9,7 +9,7 @@
 6. Jalankan perintah sequelize db:migrate
 7. Jalankan perintah sequelize db:seed:all
 8. Jalankan perintah npm run develop
-9. Buka url http://localhost:3000
+9. Buka url http://localhost:3100
 
 Link / URL documentation (swagger):
 http://localhost:3000/api-docs

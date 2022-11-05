@@ -4,7 +4,7 @@ info:
   version: 0.1.0
 servers:
 - description: Mock Server
-  url: http://localhost:3000
+  url: http://localhost:3100
 tags:
 - name: Car
   description: Contain every CRUD, authentication, and authorization operation about Car Resource
