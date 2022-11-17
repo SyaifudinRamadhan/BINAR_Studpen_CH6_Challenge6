@@ -6,8 +6,8 @@
 /** Destruct environment variable to get database configuration */
 const {
   DB_USERNAME = "postgres",
-  DB_PASSWORD = "5IPJRgQ1hEEx3g0DGoM8",
-  DB_HOST = "containers-us-west-104.railway.app",
+  DB_PASSWORD = "av59PuXFM3lsuu7ieREp",
+  DB_HOST = "postgresql://postgres:av59PuXFM3lsuu7ieREp@containers-us-west-127.railway.app:7434/railway",
   DB_NAME = "railway",
 } = process.env;
 
