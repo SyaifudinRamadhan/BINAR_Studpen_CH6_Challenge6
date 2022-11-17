@@ -143,29 +143,6 @@ module.exports = {
                 console.log('User error ada 2');
             } else {
                 console.log('User error atidak ada');
-                // req body wajib : first_name, last_name, username, password, email, googleId, google jwt
-                // cek token dengan axios
-                const userGoogle = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo",
-                    options
-                )
-
-                let { id, email } = userGoogle.data;
-                // cek google id adalah sesuai token
-                if (id !== user.user.googleId || email !== user.user.email) {
-                    req.body.googleId = id;
-                    req.body.email = email;
-                    let newUser = await this.registerService(req);
-                    if (newUser.error) {
-                        console.log(newUser);
-                        user = await this.loginService(req, withGoogle = true);
-                        console.log(user);
-                        return user;
-                    } else {
-                        console.log(newUser.error);
-                        return { error: newUser.error };
-                    }
-                }
-                // return hasil login
                 console.log(user);
                 return user;
             }
