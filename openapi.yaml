@@ -4,7 +4,7 @@ info:
   version: 0.1.0
 servers:
 - description: Mock Server
-  url: http://localhost:3100
+  url: https://binarstudpench6challenge6-production.up.railway.app
 tags:
 - name: Car
   description: Contain every CRUD, authentication, and authorization operation about Car Resource
